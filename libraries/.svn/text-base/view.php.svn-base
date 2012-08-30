@@ -1,0 +1,81 @@
+<?php
+if(!defined('IN_GAME131')) {
+	exit('Access Denied');
+}
+
+class Game131_view extends Game131_base
+{
+	protected static $_instance;
+	
+	public $vars=array();
+	public $layout = '';
+	public $templateFile = '';
+	public $tplpath = '';
+	public $tplsuffix = '';
+	
+	public function __construct(){
+		$this->tplpath = APP_PATH . '/protected/views';
+		$this->tplsuffix = Game131::app()->config('template/suffix');
+		
+	}
+	
+
+	public function assign($name,$value=''){
+		if(is_array($name)) {
+			$this->vars   =  array_merge($this->vars,$name);
+		}elseif(is_object($name)){
+			foreach($name as $key =>$val)
+				$this->vars[$key] = $val;
+		}else {
+			$this->vars[$name] = $value;
+		}
+	}
+	
+	public static function getInstance(){
+		if(!self::$_instance){
+			self::$_instance = new self();
+		}
+		return self::$_instance;
+	}
+	
+	public function display($templateFile='',$charset='',$contentType=''){
+		$this->fetch($templateFile,$charset,$contentType,true);
+		
+	}
+	
+	public function fetch($templateFile='',$charset='',$contentType='',$display=true){
+		if(empty($charset))  $charset = Game131::app()->config('output/charset');
+		if(empty($contentType)) $contentType = Game131::app()->config('output/contentType'); 
+		header("Content-Type:".$contentType."; charset=".$charset);
+		header("Cache-control: private");  //支持页面回跳
+		header("X-Powered-By:Game131 ".VERSION); 
+		//页面缓存
+		ob_start();
+		ob_implicit_flush(0); 
+		if(!$templateFile){
+			$this->templateFile = $this->tplpath . '/' . Game131::app()->getController() . '/' . Game131::app()->getAction() . $this->tplsuffix;			
+		}else{
+			$this->templateFile = $this->tplpath . '/' . $templateFile . $this->tplsuffix;
+		}
+		
+		if(!file_exists($this->templateFile)){
+			throw new Exception('Template File not exists: '.$templateFile);
+		}
+		extract($this->vars, EXTR_OVERWRITE);
+		include $this->templateFile;
+		$content = ob_get_clean();
+		
+		return	$this->output($content,$display);		
+	}
+	
+	protected function output($content,$display=true){
+		if($display)
+		echo $content;
+	}
+	
+	public function layout($file,$charset=''){
+		$filepath = 'layouts/'.$file;		
+		echo $this->fetch($filepath);
+	}
+
+}

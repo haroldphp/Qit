@@ -1,0 +1,11 @@
+<?php
+class Game131_cache extends Game131_base
+{
+	public function init($type,$options){
+		$cache_path = DATA_PATH . '/';
+		#$class_name =  
+		return new cache_file($options);
+		  
+	}
+	
+}

@@ -1,0 +1,81 @@
+<?php
+
+if(!defined('IN_GAME131')) {
+	exit('Access Denied');
+}
+class Game131_controller extends Game131_application
+{ 
+	public static $model=NULL; 
+	public static $view = NULL;
+	
+	public $renderView = true;
+	
+	public function __construct(){
+		$this->actions();
+	}
+	
+	public function actions(){
+		if($this->renderView){
+			self::$view = self::_loadView();
+		}
+	}
+	  
+	
+	public function model($modelname=''){
+		if(!$modelname){
+			$modelname = $this->getController();
+		}
+		if(!self::$model){
+			self::$model = self::_loadModel($modelname);
+		}
+		return self::$model;
+	} 
+	
+	public function assign($var,$value){
+		self::$view->assign($var,$value);
+	}
+
+
+	public function display($data)
+	{ 
+		self::$view->display($data);
+	}
+	
+	protected static function _loadModel($modelname){
+		$file = self::loadFile($modelname,'model');
+		if(file_exists($file)){
+			include $file;
+		}else{
+			return false;
+		}
+		 
+		$modelclass = ucfirst($modelname.'Model');
+		
+		return new $modelclass;
+	}
+	
+	protected static function _loadView(){
+		if(!self::$view){
+			self::$view = Game131_view::getInstance();
+		}
+		return self::$view;		
+	} 
+	
+	public function error($lang,$return=false){
+		$msg = Game131::t($this->getController(),$lang);
+		if($return)
+			return $msg;
+		else
+			echo $msg;
+	}
+	
+	public function success($lang,$return=false){
+		$msg = Game131::t($this->getController(),$lang);
+		if($return)
+			return $msg;
+		else
+			echo $msg;
+	}
+	
+	
+}

@@ -1,0 +1,9 @@
+<?php
+if(!defined('IN_GAME131')) {
+	exit('Access Denied');
+}
+return array(
+		'error_unknow' => '未知错误',
+		'error_end_message' => '终止',
+		'params_error' => '提交参数错误',
+);
